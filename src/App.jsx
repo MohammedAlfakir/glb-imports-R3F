@@ -100,7 +100,7 @@ export default function App() {
         </div>
       </div>
 
-      <Canvas camera={{ position: [0, 0, 15], fov: 50 }}>
+      <Canvas camera={{ position: [0, 0, 150], fov: 50 }}>
         <ambientLight intensity={2} />
 
         <Suspense fallback={null}>
