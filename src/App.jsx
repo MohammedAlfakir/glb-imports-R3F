@@ -26,8 +26,12 @@ const MODELS_LIST = Object.keys(modelsGlob).map(path => {
 });
 
 export default function App() {
-  const [mode, setMode] = useState("USE_GLTF");
+  // Initialize state based on first model
   const [selectedModel, setSelectedModel] = useState(MODELS_LIST[0]);
+
+  const initialIsObj =
+    MODELS_LIST[0] && MODELS_LIST[0].toLowerCase().endsWith(".obj");
+  const [mode, setMode] = useState(initialIsObj ? "USE_LOADER" : "USE_GLTF");
 
   // Dynamic path based on selection
   const modelUrl = selectedModel ? `/assets/${selectedModel}` : "";
@@ -48,7 +52,13 @@ export default function App() {
           </label>
           <select
             value={selectedModel}
-            onChange={e => setSelectedModel(e.target.value)}
+            onChange={e => {
+              const newVal = e.target.value;
+              setSelectedModel(newVal);
+              if (newVal.toLowerCase().endsWith(".obj")) {
+                setMode("USE_LOADER");
+              }
+            }}
             style={{
               width: "100%",
               padding: "8px",
@@ -71,15 +81,22 @@ export default function App() {
           Current Mode: <strong>{MODES[mode]}</strong>
         </p>
         <div className="button-group">
-          {Object.entries(MODES).map(([key, label]) => (
-            <button
-              key={key}
-              onClick={() => setMode(key)}
-              className={mode === key ? "active" : ""}
-            >
-              {label}
-            </button>
-          ))}
+          {Object.entries(MODES).map(([key, label]) => {
+            const isDisabled = isObj && key !== "USE_LOADER";
+            return (
+              <button
+                key={key}
+                onClick={() => setMode(key)}
+                disabled={isDisabled}
+                className={mode === key ? "active" : ""}
+                style={
+                  isDisabled ? { opacity: 0.5, cursor: "not-allowed" } : {}
+                }
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
