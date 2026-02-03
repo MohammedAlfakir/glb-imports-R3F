@@ -18,14 +18,22 @@ const MODES = {
   GLTF_JSX: "gltfjsx (Component)",
 };
 
-const MODELS_LIST = ["model.glb"];
+// Auto-discover models from public/assets
+const modelsGlob = import.meta.glob("/public/assets/*");
+const MODELS_LIST = Object.keys(modelsGlob).map(path => {
+  // Extract filename from path (e.g., "/public/assets/model.glb" -> "model.glb")
+  return path.split("/").pop();
+});
 
 export default function App() {
   const [mode, setMode] = useState("USE_GLTF");
   const [selectedModel, setSelectedModel] = useState(MODELS_LIST[0]);
 
   // Dynamic path based on selection
-  const modelUrl = `/assets/${selectedModel}`;
+  const modelUrl = selectedModel ? `/assets/${selectedModel}` : "";
+  const isObj = selectedModel
+    ? selectedModel.toLowerCase().endsWith(".obj")
+    : false;
 
   return (
     <>
@@ -79,17 +87,57 @@ export default function App() {
         <ambientLight intensity={2} />
 
         <Suspense fallback={null}>
-          <Environment preset="city" />
+          {/* <Environment preset="city" /> */}
           <Center>
-            {mode === "USE_LOADER" && <ModelUseLoader url={modelUrl} />}
-            {mode === "USE_GLTF" && <ModelUseGLTF url={modelUrl} />}
-            {mode === "GLTF_JSX" && <ModelGltfJsx url={modelUrl} />}
+            {mode === "USE_LOADER" && modelUrl && (
+              <ModelUseLoader url={modelUrl} />
+            )}
+
+            {(mode === "USE_GLTF" || mode === "GLTF_JSX") && isObj ? (
+              <mesh>
+                <boxGeometry args={[1, 1, 1]} />
+                <meshStandardMaterial color="red" />
+              </mesh>
+            ) : (
+              <>
+                {mode === "USE_GLTF" && modelUrl && (
+                  <ModelUseGLTF url={modelUrl} />
+                )}
+                {mode === "GLTF_JSX" && modelUrl && (
+                  <ModelGltfJsx url={modelUrl} />
+                )}
+              </>
+            )}
           </Center>
         </Suspense>
 
         <OrbitControls makeDefault />
         <Perf position="bottom-left" />
       </Canvas>
+
+      {isObj && (mode === "USE_GLTF" || mode === "GLTF_JSX") && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(0,0,0,0.8)",
+            color: "red",
+            padding: "20px",
+            borderRadius: "8px",
+            pointerEvents: "none",
+            textAlign: "center",
+          }}
+        >
+          <h2>Format Not Supported</h2>
+          <p>Creating a Red Box placeholder</p>
+          <p>
+            Start switching to <strong>useLoader</strong> mode to view .obj
+            files
+          </p>
+        </div>
+      )}
     </>
   );
 }
