@@ -11,6 +11,7 @@ import ModelUseLoader from "./components/ModelUseLoader";
 import ModelUseGLTF from "./components/ModelUseGLTF";
 import ModelGltfJsx from "./components/ModelGltfJsx";
 import { GeneratedModel } from "./components/GeneratedModel";
+import { Model as AEBDoorDrawing } from "./components/AEBDoorDrawing";
 import "./index.css";
 
 const MODES = {
@@ -166,6 +167,8 @@ export default function App() {
                   modelUrl &&
                   (selectedModel === "model.glb" ? (
                     <GeneratedModel />
+                  ) : selectedModel === "AEBDoorDrawing.glb" ? (
+                    <AEBDoorDrawing />
                   ) : (
                     <ModelGltfJsx url={modelUrl} />
                   ))}
