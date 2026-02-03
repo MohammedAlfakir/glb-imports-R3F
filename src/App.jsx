@@ -10,6 +10,7 @@ import { Perf } from "r3f-perf";
 import ModelUseLoader from "./components/ModelUseLoader";
 import ModelUseGLTF from "./components/ModelUseGLTF";
 import ModelGltfJsx from "./components/ModelGltfJsx";
+import { GeneratedModel } from "./components/GeneratedModel";
 import "./index.css";
 
 const MODES = {
@@ -98,13 +99,54 @@ export default function App() {
             );
           })}
         </div>
+
+        {!isObj && (
+          <div
+            style={{
+              marginTop: "20px",
+              paddingTop: "20px",
+              borderTop: "1px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            <p style={{ marginBottom: "5px", fontSize: "0.9em" }}>
+              <strong>To Component (gltfjsx):</strong>
+            </p>
+            <div
+              style={{
+                background: "rgba(0,0,0,0.5)",
+                padding: "10px",
+                borderRadius: "5px",
+                fontSize: "0.8em",
+                overflowX: "auto",
+              }}
+            >
+              <code>npx gltfjsx public/assets/{selectedModel}</code>
+            </div>
+            <button
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  `npx gltfjsx public/assets/${selectedModel}`,
+                )
+              }
+              style={{
+                marginTop: "5px",
+                width: "100%",
+                background: "#646cff",
+                fontSize: "0.8em",
+                padding: "5px",
+              }}
+            >
+              Copy Command
+            </button>
+          </div>
+        )}
       </div>
 
       <Canvas camera={{ position: [0, 0, 150], fov: 50 }}>
         <ambientLight intensity={2} />
 
         <Suspense fallback={null}>
-          {/* <Environment preset="city" /> */}
+          <Environment preset="city" />
           <Center>
             {mode === "USE_LOADER" && modelUrl && (
               <ModelUseLoader url={modelUrl} />
@@ -120,9 +162,13 @@ export default function App() {
                 {mode === "USE_GLTF" && modelUrl && (
                   <ModelUseGLTF url={modelUrl} />
                 )}
-                {mode === "GLTF_JSX" && modelUrl && (
-                  <ModelGltfJsx url={modelUrl} />
-                )}
+                {mode === "GLTF_JSX" &&
+                  modelUrl &&
+                  (selectedModel === "model.glb" ? (
+                    <GeneratedModel />
+                  ) : (
+                    <ModelGltfJsx url={modelUrl} />
+                  ))}
               </>
             )}
           </Center>
